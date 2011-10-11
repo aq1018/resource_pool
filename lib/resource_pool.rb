@@ -1,0 +1,98 @@
+class ResourcePool
+  class ResourcePoolError < RuntimeError; end
+  class PoolTimeout < ResourcePoolError; end
+  class BadResource < ResourcePoolError; end
+  class InvalidCreateProc < ResourcePoolError; end
+
+  attr_reader :max_size
+
+  def initialize(opts, &block)
+    @max_size = opts[:max_size] || 4
+    @create_proc = block
+    @pool = []
+    @allocated = {}
+    @mutex = Mutex.new
+    @timeout = opts[:pool_timeout] || 2
+    @sleep_time = opts[:pool_sleep_time] || 0.001
+    @delete_proc = opts[:delete_proc]
+  end
+
+  def size
+    @allocated.length + @pool.length
+  end
+
+  def release_all(&block)
+    block ||= @delete_proc
+    sync do
+      @pool.each{|res| block.call(res)} if block
+      @pool.clear
+    end
+  end
+
+  def hold
+    t = Thread.current
+    if res = owned_resource(t)
+      return yield(res)
+    end
+    begin
+      unless res = acquire(t)
+        time = Time.now
+        timeout = time + @timeout
+        sleep_time = @sleep_time
+        sleep sleep_time
+        until res = acquire(t)
+          raise PoolTimeout if Time.now > timeout
+          sleep sleep_time
+        end
+      end
+      yield res
+    rescue BadResource
+      old_res = res
+      res = nil
+      @delete_proc.call(res) if @delete_proc && old_res
+      @allocated.delete(t)
+      raise
+    ensure
+      sync{release(t)} if conn
+    end
+  end
+
+  private
+
+  def owned_resource(thread)
+    sync{ @allocated[thread] }
+  end
+
+  def acquire(thread)
+    sync do
+      resource = available
+      @allocated[thread] = resource if resource
+    end
+  end
+
+  def release(thread)
+    @pool << @allocated.delete(thread)
+  end
+
+  def available
+    @pool.pop || make_new
+  end
+
+  def make_new
+    salvage if size >= @max_size
+    create_resource if size < @max_size
+  end
+
+  def salvage
+    @allocated.keys.each{ |t| release(t) unless t.alive? }
+  end
+
+  def create_resource
+    resource = @create_proc.call
+    raise InvalidCreateProc, "create_proc returned nil" unless resource
+  end
+
+  def sync
+    @mutex.synchronize{yield}
+  end
+end
