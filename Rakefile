@@ -17,11 +17,10 @@ Jeweler::Tasks.new do |gem|
   gem.name = "resource_pool"
   gem.homepage = "http://github.com/aq1018/resource_pool"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{A gem for generic connection pooling / resource pooling. }
+  gem.description = %Q{A gem for generic connection pooling / resource pooling. The code is mostly taken from Sequel gem's ThreadedConnectionPool class, and adapted for more general use.}
   gem.email = "aq1018@gmail.com"
   gem.authors = ["Aaron Qian"]
-  # dependencies defined in Gemfile
 end
 Jeweler::RubygemsDotOrgTasks.new
 
