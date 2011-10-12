@@ -1,6 +1,47 @@
 = resource_pool
 
-Description goes here.
+This is a generic connection pool / resource pool implementation. The initial code is largely taken from `ThreadedConnectionPool` class from `Sequel` gem and adapted for more general use.
+
+== Install
+
+  gem install resource_pool
+
+== Usage
+
+  require 'resource_pool'
+
+  memcache_pool = ResourcePool.new({
+      :max_size => 10,                  # Max amount of resource allowed to create. Default is 4
+      :pool_timeout => 4,               # Seconds to wait when aquiring a free resource. Default is 2
+      :pool_sleep_time => 0.1,          # Seconds to wait for retry aquiring resource. Default is 0.001
+      :delete_proc => lambda{ |res| }   # a proc used to close / delete the resource. Optional
+  }) do
+    # create your resource here.
+    # A resource can be anything such as TCP, persistent HTTP, database, nosql
+    # Note: must return the instantiated resource
+    Memcache.new MemCache.new 'host:11211'
+  end
+
+  # using defaults for redis pool
+  redis_pool = ResourcePool.new do
+    Redis.new(:host => "10.0.1.1", :port => 6380)
+  end
+
+  # Use the resource:
+  threads = []
+  50.times do
+    threads <<Thread.new do
+      # there are 4 redis connections
+      # can now be shared safely with 50 threads
+      redis_pool.hold do |redis|
+        redis.set "foo", "bar"
+        redis.get "foo"
+      end
+    end
+  end
+
+  threads.each(&:join)
+
 
 == Contributing to resource_pool
  
