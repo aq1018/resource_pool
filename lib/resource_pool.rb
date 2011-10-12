@@ -4,9 +4,9 @@ class ResourcePool
   class BadResource < ResourcePoolError; end
   class InvalidCreateProc < ResourcePoolError; end
 
-  attr_reader :max_size
+  attr_reader :max_size, :pool, :allocated
 
-  def initialize(opts, &block)
+  def initialize(opts={}, &block)
     @max_size = opts[:max_size] || 4
     @create_proc = block
     @pool = []
@@ -33,6 +33,7 @@ class ResourcePool
     t = Thread.current
     if res = owned_resource(t)
       return yield(res)
+
     end
     begin
       unless res = acquire(t)
@@ -53,7 +54,7 @@ class ResourcePool
       @allocated.delete(t)
       raise
     ensure
-      sync{release(t)} if conn
+      sync{release(t)} if res
     end
   end
 
@@ -65,8 +66,8 @@ class ResourcePool
 
   def acquire(thread)
     sync do
-      resource = available
-      @allocated[thread] = resource if resource
+      res = available
+      @allocated[thread] = res if res
     end
   end
 
@@ -80,7 +81,7 @@ class ResourcePool
 
   def make_new
     salvage if size >= @max_size
-    create_resource if size < @max_size
+    size < @max_size ? create_resource : nil
   end
 
   def salvage
@@ -90,6 +91,7 @@ class ResourcePool
   def create_resource
     resource = @create_proc.call
     raise InvalidCreateProc, "create_proc returned nil" unless resource
+    resource
   end
 
   def sync
