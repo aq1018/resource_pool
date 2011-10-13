@@ -279,7 +279,7 @@ describe "ResourcePool" do
       start = Time.now
       lambda {
         @pool.hold{ |res| res.should == @res }
-      }.should raise_error(ResourcePool::PoolTimeout)
+      }.should raise_error(ResourcePool::ResourceNotAvailable)
 
       delta = Time.now - start
       delta.should be_between(1.99, 2.01)

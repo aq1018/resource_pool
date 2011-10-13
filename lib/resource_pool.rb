@@ -1,6 +1,6 @@
 class ResourcePool
   class ResourcePoolError < RuntimeError; end
-  class PoolTimeout < ResourcePoolError; end
+  class ResourceNotAvailable < ResourcePoolError; end
   class BadResource < ResourcePoolError; end
   class InvalidCreateProc < ResourcePoolError; end
 
@@ -37,12 +37,13 @@ class ResourcePool
     end
     begin
       unless res = acquire(t)
+        raise ResourceNotAvailable if @timeout == 0
         time = Time.now
         timeout = time + @timeout
         sleep_time = @sleep_time
         sleep sleep_time
         until res = acquire(t)
-          raise PoolTimeout if Time.now > timeout
+          raise ResourceNotAvailable if Time.now > timeout
           sleep sleep_time
         end
       end
