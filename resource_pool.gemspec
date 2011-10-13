@@ -5,11 +5,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{resource_pool}
-  s.version = "0.1.1"
+  s.version = "0.1.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = [%q{Aaron Qian}]
-  s.date = %q{2011-10-12}
+  s.date = %q{2011-10-13}
   s.description = %q{A gem for generic connection pooling / resource pooling. The code is mostly taken from Sequel gem's ThreadedConnectionPool class, and adapted for more general use.}
   s.email = %q{aq1018@gmail.com}
   s.extra_rdoc_files = [
@@ -25,6 +25,7 @@ Gem::Specification.new do |s|
     "Rakefile",
     "VERSION",
     "lib/resource_pool.rb",
+    "resource_pool.gemspec",
     "spec/resource_pool_spec.rb",
     "spec/spec_helper.rb"
   ]
