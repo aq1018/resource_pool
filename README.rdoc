@@ -12,7 +12,8 @@ This is a generic connection pool / resource pool implementation. The initial co
 
   memcache_pool = ResourcePool.new({
       :max_size => 10,                  # Max amount of resource allowed to create. Default is 4
-      :pool_timeout => 4,               # Seconds to wait when aquiring a free resource. Default is 2
+      :pool_timeout => 4,               # Seconds to wait when aquiring a free resource.
+                                        # Set to 0 to skip waiting. Default is 2
       :pool_sleep_time => 0.1,          # Seconds to wait for retry aquiring resource. Default is 0.001
       :delete_proc => lambda{ |res| }   # a proc used to close / delete the resource. Optional
   }) do
