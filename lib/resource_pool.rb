@@ -51,7 +51,7 @@ class ResourcePool
     rescue BadResource
       old_res = res
       res = nil
-      @delete_proc.call(res) if @delete_proc && old_res
+      @delete_proc.call(old_res) if @delete_proc && old_res
       @allocated.delete(t)
       raise
     ensure

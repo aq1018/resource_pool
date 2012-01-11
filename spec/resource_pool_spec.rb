@@ -306,6 +306,7 @@ describe "ResourcePool" do
         with(Thread.current)
 
       @pool.instance_variable_set(:@delete_proc, lambda{|res|
+        res.should == @res
         delete_proc_called = true
       })
 
