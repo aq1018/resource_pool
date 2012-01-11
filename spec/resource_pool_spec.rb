@@ -244,9 +244,14 @@ describe "ResourcePool" do
     end
 
     it "should aquire and release resource" do
+      @pool.should_receive(:owned_resource).
+        with(Thread.current).
+        and_return(nil, @res)
+
       @pool.should_receive(:acquire).
         with(Thread.current).
         and_return(@res)
+
       @pool.should_receive(:release).
         with(Thread.current)
 
@@ -286,19 +291,26 @@ describe "ResourcePool" do
     end
 
     it "should delete bad resource" do
+      @pool.should_receive(:owned_resource).
+        with(Thread.current).
+        and_return(nil, @res, nil)
+
       @pool.should_receive(:acquire).
         and_return(@res)
       @pool.should_not_receive(:release)
       @pool.allocated.should_receive(:delete).
         with(Thread.current)
 
-      lambda {
-        @pool.hold{ |res| raise ResourcePool::BadResource }
-      }.should raise_error(ResourcePool::BadResource)
+      @pool.hold{ |res| @pool.trash_current! }
     end
 
     it "should call delete_proc if avaiable" do
       delete_proc_called = false
+
+      @pool.should_receive(:owned_resource).
+        with(Thread.current).
+        and_return(nil, @res, nil)
+
       @pool.should_receive(:acquire).
         and_return(@res)
       @pool.should_not_receive(:release)
@@ -310,9 +322,7 @@ describe "ResourcePool" do
         delete_proc_called = true
       })
 
-      lambda {
-        @pool.hold{ |res| raise ResourcePool::BadResource }
-      }.should raise_error(ResourcePool::BadResource)
+      @pool.hold{ |res| @pool.trash_current! }
 
       delete_proc_called.should be_true
     end

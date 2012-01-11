@@ -1,7 +1,6 @@
 class ResourcePool
   class ResourcePoolError < RuntimeError; end
   class ResourceNotAvailable < ResourcePoolError; end
-  class BadResource < ResourcePoolError; end
   class InvalidCreateProc < ResourcePoolError; end
 
   attr_reader :max_size, :pool, :allocated
@@ -33,8 +32,8 @@ class ResourcePool
     t = Thread.current
     if res = owned_resource(t)
       return yield(res)
-
     end
+
     begin
       unless res = acquire(t)
         raise ResourceNotAvailable if @timeout == 0
@@ -48,15 +47,20 @@ class ResourcePool
         end
       end
       yield res
-    rescue BadResource
-      old_res = res
-      res = nil
-      @delete_proc.call(old_res) if @delete_proc && old_res
-      @allocated.delete(t)
-      raise
     ensure
-      sync{release(t)} if res
+      sync{release(t)} if owned_resource(t)
     end
+  end
+
+  # please only call this inside hold block
+  def trash_current!
+    t    = Thread.current
+    conn = owned_resource(t)
+    return unless conn
+
+    @delete_proc.call conn if @delete_proc
+    sync { @allocated.delete(t) }
+    nil
   end
 
   private
