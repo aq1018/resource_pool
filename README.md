@@ -1,6 +1,12 @@
 # resource_pool
 
+[![Gem Version](https://badge.fury.io/rb/resource_pool.png)](http://badge.fury.io/rb/resource_pool)
+[![Build Status](https://travis-ci.org/aq1018/resource_pool.png?branch=master)](https://travis-ci.org/aq1018/resource_pool)
+[![Dependency Status](https://gemnasium.com/aq1018/resource_pool.png)](https://gemnasium.com/aq1018/resource_pool)
+[![Code Climate](https://codeclimate.com/badge.png)](https://codeclimate.com/github/aq1018/resource_pool)
+
 This is a generic connection pool / resource pool implementation. The initial code is largely taken from `ThreadedConnectionPool` class from `Sequel` gem and adapted for more general use.
+
 
 ## Install
 
