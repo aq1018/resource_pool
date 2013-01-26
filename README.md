@@ -34,7 +34,7 @@ This is a generic connection pool / resource pool implementation. The initial co
   # Use the resource:
   threads = []
   50.times do
-    threads <<Thread.new do
+    thread = Thread.new do
       # there are 4 redis connections
       # can now be shared safely with 50 threads
       redis_pool.hold do |redis|
@@ -42,6 +42,7 @@ This is a generic connection pool / resource pool implementation. The initial co
         redis.get "foo"
       end
     end
+    threads << thread
   end
 
   threads.each(&:join)
