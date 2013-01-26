@@ -1,13 +1,16 @@
-= resource_pool
+# resource_pool
 
 This is a generic connection pool / resource pool implementation. The initial code is largely taken from `ThreadedConnectionPool` class from `Sequel` gem and adapted for more general use.
 
-== Install
+## Install
 
+```
   gem install resource_pool
+```
 
-== Usage
+## Usage
 
+```ruby
   require 'resource_pool'
 
   memcache_pool = ResourcePool.new({
@@ -42,10 +45,10 @@ This is a generic connection pool / resource pool implementation. The initial co
   end
 
   threads.each(&:join)
+```
 
+## Contributing to resource_pool
 
-== Contributing to resource_pool
- 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
@@ -54,7 +57,7 @@ This is a generic connection pool / resource pool implementation. The initial co
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
-== Copyright
+## Copyright
 
 Copyright (c) 2011 Aaron Qian. See LICENSE.txt for
 further details.
