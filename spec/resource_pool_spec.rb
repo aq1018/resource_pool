@@ -272,7 +272,7 @@ describe "ResourcePool" do
         res.should == @res
       end
       delta = Time.now - start
-      delta.should be_between(0.8, 1.2)
+      delta.should be_between(0.6, 1.4)
     end
 
     it "should timeout after 2 seconds" do
